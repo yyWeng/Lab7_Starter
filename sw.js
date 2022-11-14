@@ -9,7 +9,15 @@ self.addEventListener('install', function (event) {
     caches.open(CACHE_NAME).then(function (cache) {
       // B6. TODO - Add all of the URLs from RECIPE_URLs here so that they are
       //            added to the cache when the ServiceWorker is installed
-      return cache.addAll([]);
+
+      return cache.addAll([
+        'https://introweb.tech/assets/json/1_50-thanksgiving-side-dishes.json',
+        'https://introweb.tech/assets/json/2_roasting-turkey-breast-with-stuffing.json',
+        'https://introweb.tech/assets/json/3_moms-cornbread-stuffing.json',
+        'https://introweb.tech/assets/json/4_50-indulgent-thanksgiving-side-dishes-for-any-holiday-gathering.json',
+        'https://introweb.tech/assets/json/5_healthy-thanksgiving-recipe-crockpot-turkey-breast.json',
+        'https://introweb.tech/assets/json/6_one-pot-thanksgiving-dinner.json',
+      ]);
     })
   );
 });
@@ -37,4 +45,17 @@ self.addEventListener('fetch', function (event) {
   // B8. TODO - If the request is in the cache, return with the cached version.
   //            Otherwise fetch the resource, add it to the cache, and return
   //            network response.
+  event.respondWith(caches.open(CACHE_NAME).then((cache) => {
+    return cache.match(event.request).then((cachedResponse) => {
+     
+      if (cachedResponse) {
+        return cachedResponse;
+      }
+      return fetch(event.request).then((fetchedResponse) => {
+        cache.put(event.request, fetchedResponse.clone());
+        return fetchedResponse;
+      });
+    });
+  }));
+
 });
